@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Veylola AI — your intelligent AI assistant." />
+  <title>Veylola AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">V</div><div><strong>Veylola AI</strong><span>Intelligent assistant</span></div></div>
+      <button id="newChat" class="new-chat">+ New chat</button>
+      <div class="side-info"><span>Veylola</span><p>Ask questions, brainstorm ideas, write, learn and solve problems.</p></div>
+      <div class="side-bottom">Built for the Veylola AI project</div>
+    </aside>
+
+    <section class="chat-panel">
+      <header class="topbar"><div><h1>Veylola AI</h1><p>Your intelligent conversation partner</p></div><span class="status"><i></i> Online</span></header>
+      <div id="messages" class="messages">
+        <div class="welcome"><div class="welcome-icon">V</div><h2>How can I help you today?</h2><p>Ask Veylola AI anything.</p><div class="suggestions"><button>Write a business idea</button><button>Explain something simply</button><button>Help me plan a project</button></div></div>
+      </div>
+      <form id="chatForm" class="composer">
+        <textarea id="prompt" rows="1" placeholder="Message Veylola AI..." autocomplete="off"></textarea>
+        <button id="send" type="submit" aria-label="Send">➤</button>
+      </form>
+      <p class="disclaimer">Veylola AI can make mistakes. Check important information.</p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
