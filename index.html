@@ -21,6 +21,12 @@
         <div class="password-wrap"><input id="authEmail" type="email" placeholder="you@example.com" required autocomplete="email" /></div>
         <label class="field-label" for="authPassword">Password</label>
         <div class="password-wrap"><input id="authPassword" type="password" placeholder="Enter your password" required autocomplete="current-password" minlength="6" /><button id="togglePassword" class="eye-button" type="button" aria-label="Show password" title="Show password">👁</button></div>
+        <div id="confirmPasswordGroup" class="signup-only hidden-field">
+          <label class="field-label" for="authConfirmPassword">Confirm password</label>
+          <div class="password-wrap"><input id="authConfirmPassword" type="password" placeholder="Re-enter your password" autocomplete="new-password" minlength="8" /><button id="toggleConfirmPassword" class="eye-button" type="button" aria-label="Show confirm password" title="Show confirm password">👁</button></div>
+          <div class="password-strength"><div id="passwordStrengthBar"></div></div>
+          <div id="passwordStrengthText" class="password-strength-text">Use 8+ characters with uppercase, lowercase, number and symbol.</div>
+        </div>
         <button id="authSubmit" class="premium-submit" type="submit"><span>Sign in</span><b>→</b></button>
       </form>
       <button id="forgotPassword" class="text-button" type="button">Forgot password?</button>
