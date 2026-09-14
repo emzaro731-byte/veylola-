@@ -16,6 +16,7 @@ const togglePassword = document.getElementById('togglePassword');
 const authSubmit = document.getElementById('authSubmit');
 const authToggle = document.getElementById('authToggle');
 const forgotPassword = document.getElementById('forgotPassword');
+const authTitle = document.getElementById('authTitle');
 const authSubtitle = document.getElementById('authSubtitle');
 const authMessage = document.getElementById('authMessage');
 const signOut = document.getElementById('signOut');
@@ -66,19 +67,33 @@ try {
   if (errorDescription) showMessage(decodeURIComponent(errorDescription.replace(/\+/g, ' ')), true);
 } catch (_) {}
 
-authToggle.addEventListener('click', () => {
-  signUpMode = !signUpMode;
-  authSubtitle.textContent = signUpMode ? 'Create your Veylola AI account' : 'Sign in to continue';
-  authSubmit.textContent = signUpMode ? 'Create account' : 'Sign in';
-  authToggle.textContent = signUpMode ? 'Already have an account? Sign in' : 'Create an account';
-  forgotPassword.style.display = signUpMode ? 'none' : 'block';
+function setAuthMode(createAccount) {
+  signUpMode = createAccount;
+  authTitle.textContent = createAccount ? 'Create your account' : 'Welcome back';
+  authSubtitle.textContent = createAccount
+    ? 'Join Veylola AI and start your private workspace'
+    : 'Sign in to your private AI workspace';
+  authSubmit.innerHTML = createAccount ? '<span>Create account</span><b>→</b>' : '<span>Sign in</span><b>→</b>';
+  authToggle.innerHTML = createAccount
+    ? 'Already have an account? <span>Sign in →</span>'
+    : 'Create your Veylola account <span>→</span>';
+  forgotPassword.style.display = createAccount ? 'none' : 'block';
+  authPassword.autocomplete = createAccount ? 'new-password' : 'current-password';
   showMessage('');
-});
+}
+
+authToggle.addEventListener('click', () => setAuthMode(!signUpMode));
 
 authForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const email = authEmail.value.trim();
   const password = authPassword.value;
+
+  if (!email || !password) {
+    showMessage('Enter your email and password.', true);
+    return;
+  }
+
   authSubmit.disabled = true;
   showMessage(signUpMode ? 'Creating your account...' : 'Signing you in...');
 
@@ -90,18 +105,33 @@ authForm.addEventListener('submit', async (event) => {
         options: { emailRedirectTo: SITE_URL }
       });
       if (error) throw error;
-      if (data.session) renderApp(data.user);
-      else showMessage('Account created. Check your email and tap the confirmation link before signing in.');
+
+      if (data.session && data.user) {
+        renderApp(data.user);
+      } else {
+        showMessage('Account created successfully. Check your email and confirm your account, then sign in.');
+        setAuthMode(false);
+        authEmail.value = email;
+        authPassword.value = '';
+      }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         const message = (error.message || '').toLowerCase();
-        if (message.includes('email not confirmed')) throw new Error('Your email is not confirmed yet. Check your inbox, then try again.');
+        if (message.includes('email not confirmed')) {
+          throw new Error('Your email is not confirmed yet. Check your inbox, confirm your account, then sign in.');
+        }
         throw error;
       }
+      if (data.user) renderApp(data.user);
     }
   } catch (error) {
-    showMessage(error.message || 'Authentication failed.', true);
+    const message = error.message || 'Authentication failed.';
+    if (message.toLowerCase().includes('user already registered')) {
+      showMessage('This email already has an account. Switch to Sign in.', true);
+    } else {
+      showMessage(message, true);
+    }
   } finally {
     authSubmit.disabled = false;
   }
