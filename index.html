@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Veylola AI — your intelligent AI assistant." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#050505" />
+  <meta name="description" content="Veylola AI — build anything with AI." />
   <title>Veylola AI</title>
-  <link rel="stylesheet" href="style.css?v=20260914-2" />
+  <link rel="stylesheet" href="style.css?v=20260914-3" />
 </head>
 <body>
   <div id="authScreen" class="auth-screen">
@@ -24,7 +25,49 @@
       <button id="authToggle" class="create-button" type="button">Create your Veylola account <span>→</span></button><p id="authMessage" class="auth-message"></p><p class="auth-footer">By continuing, you agree to use Veylola AI responsibly.</p>
     </div>
   </div>
-  <main id="appShell" class="app-shell hidden"><aside class="sidebar"><div class="brand"><div class="brand-mark">V</div><div><strong>Veylola AI</strong><span>Intelligent assistant</span></div></div><button id="newChat" class="new-chat">+ New chat</button><div class="side-info"><span>Veylola</span><p>Ask questions, brainstorm ideas, write, learn and solve problems.</p></div><div class="side-bottom"><span id="userEmail"></span><button id="signOut" class="text-button" type="button">Sign out</button></div></aside><section class="chat-panel"><header class="topbar"><div><h1>Veylola AI</h1><p>Your intelligent conversation partner</p></div><span class="status"><i></i> Online</span></header><div id="messages" class="messages"><div class="welcome"><div class="welcome-icon">V</div><h2>How can I help you today?</h2><p>Ask Veylola AI anything.</p></div></div><form id="chatForm" class="composer"><textarea id="prompt" rows="1" placeholder="Message Veylola AI..." autocomplete="off"></textarea><button id="send" type="submit">➤</button></form><p class="disclaimer">Veylola AI can make mistakes. Check important information.</p></section></main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js?v=20260914-2"></script>
+
+  <main id="appShell" class="app-shell hidden">
+    <header class="mobile-topbar">
+      <button id="menuButton" class="icon-button" aria-label="Open menu">☰</button>
+      <div class="brand-pill"><div class="brand-mark">✦</div><div><strong>Veylola</strong><span>Build Anything</span></div></div>
+      <button id="newChatMobile" class="icon-button" aria-label="New chat">◌</button>
+    </header>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="brand"><div class="brand-mark">✦</div><div><strong>Veylola</strong><span>Build Anything</span></div></div>
+      <button id="newChat" class="new-chat">＋ New chat</button>
+      <div class="mode-card"><span>AI BUILDER</span><strong>Describe it. Veylola builds it.</strong><p>Ask for an app, website, game, design or idea. Build requests open a Rork-style build workspace.</p></div>
+      <div class="side-bottom"><span id="userEmail"></span><button id="signOut" class="text-button" type="button">Sign out</button></div>
+    </aside>
+
+    <section class="chat-panel">
+      <div id="messages" class="messages">
+        <div class="welcome">
+          <div class="hero-logo">✦</div>
+          <h1>What will you build?</h1>
+          <p>Ask Veylola anything — or describe an app you want to create.</p>
+          <div class="quick-prompts">
+            <button type="button" data-prompt="Build me a modern mobile shopping app">Build a shopping app</button>
+            <button type="button" data-prompt="Build a social media app with profiles and chat">Build a social app</button>
+            <button type="button" data-prompt="Build a portfolio website for a creative agency">Build a website</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer-wrap">
+        <div id="buildMode" class="build-mode"><span>✦</span> Build mode <b>ON</b></div>
+        <form id="chatForm" class="composer">
+          <button id="attachButton" class="composer-icon" type="button" aria-label="Attach">＋</button>
+          <textarea id="prompt" rows="1" placeholder="Ask Veylola to build anything..." autocomplete="off"></textarea>
+          <button id="micButton" class="composer-icon" type="button" aria-label="Voice input">⌁</button>
+          <button id="send" class="send-button" type="submit" aria-label="Send">↑</button>
+        </form>
+        <p class="disclaimer">Veylola AI can make mistakes. Review generated builds before publishing.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js?v=20260914-3"></script>
 </body>
 </html>
