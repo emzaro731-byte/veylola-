@@ -12,6 +12,7 @@ const appShell = document.getElementById('appShell');
 const authForm = document.getElementById('authForm');
 const authEmail = document.getElementById('authEmail');
 const authPassword = document.getElementById('authPassword');
+const togglePassword = document.getElementById('togglePassword');
 const authSubmit = document.getElementById('authSubmit');
 const authToggle = document.getElementById('authToggle');
 const forgotPassword = document.getElementById('forgotPassword');
@@ -50,7 +51,15 @@ supabase.auth.onAuthStateChange((_event, session) => {
   else renderAuth();
 });
 
-// Show useful errors returned by Supabase after an email confirmation/reset link.
+// Password visibility toggle.
+togglePassword.addEventListener('click', () => {
+  const visible = authPassword.type === 'text';
+  authPassword.type = visible ? 'password' : 'text';
+  togglePassword.textContent = visible ? '👁' : '🙈';
+  togglePassword.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+  togglePassword.title = visible ? 'Show password' : 'Hide password';
+});
+
 try {
   const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
   const errorDescription = params.get('error_description');
@@ -81,18 +90,13 @@ authForm.addEventListener('submit', async (event) => {
         options: { emailRedirectTo: SITE_URL }
       });
       if (error) throw error;
-      if (data.session) {
-        renderApp(data.user);
-      } else {
-        showMessage('Account created. Check your email and tap the confirmation link before signing in.');
-      }
+      if (data.session) renderApp(data.user);
+      else showMessage('Account created. Check your email and tap the confirmation link before signing in.');
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         const message = (error.message || '').toLowerCase();
-        if (message.includes('email not confirmed')) {
-          throw new Error('Your email is not confirmed yet. Check your inbox, then try again.');
-        }
+        if (message.includes('email not confirmed')) throw new Error('Your email is not confirmed yet. Check your inbox, then try again.');
         throw error;
       }
     }
@@ -112,9 +116,7 @@ forgotPassword.addEventListener('click', async () => {
   }
   forgotPassword.disabled = true;
   try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: SITE_URL
-    });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: SITE_URL });
     if (error) throw error;
     showMessage('Password reset email sent. Check your inbox and follow the link.');
   } catch (error) {
