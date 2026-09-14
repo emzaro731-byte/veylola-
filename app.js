@@ -2,8 +2,11 @@ const { createClient } = window.supabase;
 
 const SUPABASE_URL = 'https://vihbsfrwnslnmheowkhy.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RNvbXKwTRLQU5WIYmX0A-g_zokdaYLe';
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+});
 
+const SITE_URL = window.location.origin + window.location.pathname;
 const authScreen = document.getElementById('authScreen');
 const appShell = document.getElementById('appShell');
 const authForm = document.getElementById('authForm');
@@ -36,7 +39,8 @@ function renderApp(user) {
 }
 
 async function checkSession() {
-  const { data } = await supabase.auth.getSession();
+  const { data, error } = await supabase.auth.getSession();
+  if (error) showMessage(error.message, true);
   if (data.session?.user) renderApp(data.session.user);
   else renderAuth();
 }
@@ -45,6 +49,13 @@ supabase.auth.onAuthStateChange((_event, session) => {
   if (session?.user) renderApp(session.user);
   else renderAuth();
 });
+
+// Show useful errors returned by Supabase after an email confirmation/reset link.
+try {
+  const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  const errorDescription = params.get('error_description');
+  if (errorDescription) showMessage(decodeURIComponent(errorDescription.replace(/\+/g, ' ')), true);
+} catch (_) {}
 
 authToggle.addEventListener('click', () => {
   signUpMode = !signUpMode;
@@ -64,16 +75,26 @@ authForm.addEventListener('submit', async (event) => {
 
   try {
     if (signUpMode) {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: window.location.origin }
+        options: { emailRedirectTo: SITE_URL }
       });
       if (error) throw error;
-      showMessage('Account created. Check your email to confirm your account.');
+      if (data.session) {
+        renderApp(data.user);
+      } else {
+        showMessage('Account created. Check your email and tap the confirmation link before signing in.');
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (error) {
+        const message = (error.message || '').toLowerCase();
+        if (message.includes('email not confirmed')) {
+          throw new Error('Your email is not confirmed yet. Check your inbox, then try again.');
+        }
+        throw error;
+      }
     }
   } catch (error) {
     showMessage(error.message || 'Authentication failed.', true);
@@ -92,10 +113,10 @@ forgotPassword.addEventListener('click', async () => {
   forgotPassword.disabled = true;
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/?reset=1`
+      redirectTo: SITE_URL
     });
     if (error) throw error;
-    showMessage('Password reset email sent. Check your inbox.');
+    showMessage('Password reset email sent. Check your inbox and follow the link.');
   } catch (error) {
     showMessage(error.message || 'Could not send the reset email.', true);
   } finally {
@@ -104,7 +125,8 @@ forgotPassword.addEventListener('click', async () => {
 });
 
 signOut.addEventListener('click', async () => {
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  if (error) showMessage(error.message, true);
 });
 
 const messages = document.getElementById('messages');
