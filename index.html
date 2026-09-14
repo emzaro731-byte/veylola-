@@ -9,23 +9,25 @@
 </head>
 <body>
   <div id="authScreen" class="auth-screen">
+    <div class="auth-glow glow-one"></div><div class="auth-glow glow-two"></div>
     <div class="auth-card">
+      <div class="auth-badge"><span class="badge-dot"></span> VEYLOLA AI</div>
       <div class="welcome-icon">V</div>
-      <h1>Veylola AI</h1>
-      <p id="authSubtitle">Sign in to continue</p>
+      <h1 id="authTitle">Welcome back</h1>
+      <p id="authSubtitle">Sign in to your private AI workspace</p>
+      <div class="secure-note"><span>✦</span> Secure & private</div>
       <form id="authForm">
-        <div class="password-wrap">
-          <input id="authEmail" type="email" placeholder="Email address" required autocomplete="email" />
-        </div>
-        <div class="password-wrap">
-          <input id="authPassword" type="password" placeholder="Password" required autocomplete="current-password" minlength="6" />
-          <button id="togglePassword" class="eye-button" type="button" aria-label="Show password" title="Show password">👁</button>
-        </div>
-        <button id="authSubmit" type="submit">Sign in</button>
+        <label class="field-label" for="authEmail">Email address</label>
+        <div class="password-wrap"><input id="authEmail" type="email" placeholder="you@example.com" required autocomplete="email" /></div>
+        <label class="field-label" for="authPassword">Password</label>
+        <div class="password-wrap"><input id="authPassword" type="password" placeholder="Enter your password" required autocomplete="current-password" minlength="6" /><button id="togglePassword" class="eye-button" type="button" aria-label="Show password" title="Show password">👁</button></div>
+        <button id="authSubmit" class="premium-submit" type="submit"><span>Sign in</span><b>→</b></button>
       </form>
       <button id="forgotPassword" class="text-button" type="button">Forgot password?</button>
-      <button id="authToggle" class="text-button" type="button">Create an account</button>
+      <div class="auth-divider"><span>or</span></div>
+      <button id="authToggle" class="create-button" type="button">Create your Veylola account <span>→</span></button>
       <p id="authMessage" class="auth-message"></p>
+      <p class="auth-footer">By continuing, you agree to use Veylola AI responsibly.</p>
     </div>
   </div>
 
@@ -36,20 +38,13 @@
       <div class="side-info"><span>Veylola</span><p>Ask questions, brainstorm ideas, write, learn and solve problems.</p></div>
       <div class="side-bottom"><span id="userEmail"></span><button id="signOut" class="text-button" type="button">Sign out</button></div>
     </aside>
-
     <section class="chat-panel">
       <header class="topbar"><div><h1>Veylola AI</h1><p>Your intelligent conversation partner</p></div><span class="status"><i></i> Online</span></header>
-      <div id="messages" class="messages">
-        <div class="welcome"><div class="welcome-icon">V</div><h2>How can I help you today?</h2><p>Ask Veylola AI anything.</p><div class="suggestions"><button type="button">Write a business idea</button><button type="button">Explain something simply</button><button type="button">Help me plan a project</button></div></div>
-      </div>
-      <form id="chatForm" class="composer">
-        <textarea id="prompt" rows="1" placeholder="Message Veylola AI..." autocomplete="off"></textarea>
-        <button id="send" type="submit" aria-label="Send">➤</button>
-      </form>
+      <div id="messages" class="messages"><div class="welcome"><div class="welcome-icon">V</div><h2>How can I help you today?</h2><p>Ask Veylola AI anything.</p><div class="suggestions"><button type="button">Write a business idea</button><button type="button">Explain something simply</button><button type="button">Help me plan a project</button></div></div></div>
+      <form id="chatForm" class="composer"><textarea id="prompt" rows="1" placeholder="Message Veylola AI..." autocomplete="off"></textarea><button id="send" type="submit" aria-label="Send">➤</button></form>
       <p class="disclaimer">Veylola AI can make mistakes. Check important information.</p>
     </section>
   </main>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body>
