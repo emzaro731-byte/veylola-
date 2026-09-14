@@ -80,11 +80,8 @@ function updatePasswordStrength() {
   if (/[A-Z]/.test(password)) score++;
   if (/\d/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
-
   passwordStrengthBar.style.width = `${score * 20}%`;
-  passwordStrengthText.textContent = score === 0 ? 'Use 8+ characters with uppercase, lowercase, number and symbol.' :
-    score < 3 ? 'Weak password — add more character types.' :
-    score < 5 ? 'Good password — add more variety.' : 'Strong password ✓';
+  passwordStrengthText.textContent = score === 0 ? 'Use 8+ characters with uppercase, lowercase, number and symbol.' : score < 3 ? 'Weak password — add more character types.' : score < 5 ? 'Good password — add more variety.' : 'Strong password ✓';
   passwordStrengthText.className = `password-strength-text strength-${score}`;
 }
 
@@ -99,15 +96,14 @@ try {
 function setAuthMode(createAccount) {
   signUpMode = createAccount;
   authTitle.textContent = createAccount ? 'Create your account' : 'Welcome back';
-  authSubtitle.textContent = createAccount
-    ? 'Join Veylola AI and start your private workspace'
-    : 'Sign in to your private AI workspace';
+  authSubtitle.textContent = createAccount ? 'Join Veylola AI and start your private workspace' : 'Sign in to your private AI workspace';
   authSubmit.innerHTML = createAccount ? '<span>Create account</span><b>→</b>' : '<span>Sign in</span><b>→</b>';
-  authToggle.innerHTML = createAccount
-    ? 'Already have an account? <span>Sign in →</span>'
-    : 'Create your Veylola account <span>→</span>';
-  forgotPassword.style.display = createAccount ? 'none' : 'block';
+  authToggle.innerHTML = createAccount ? 'Already have an account? <span>Sign in →</span>' : 'Create your Veylola account <span>→</span>';
+
+  // Use direct display control so signup fields cannot remain hidden because of cached CSS.
+  confirmPasswordGroup.style.display = createAccount ? 'block' : 'none';
   confirmPasswordGroup.classList.toggle('hidden-field', !createAccount);
+  forgotPassword.style.display = createAccount ? 'none' : 'block';
   authConfirmPassword.required = createAccount;
   authPassword.minLength = createAccount ? 8 : 6;
   authPassword.autocomplete = createAccount ? 'new-password' : 'current-password';
@@ -117,9 +113,21 @@ function setAuthMode(createAccount) {
   if (createAccount) setTimeout(() => authPassword.focus(), 50);
 }
 
-authToggle.addEventListener('click', (event) => {
+// Explicit onclick handler makes the Create Account control work reliably on mobile browsers.
+authToggle.onclick = (event) => {
   event.preventDefault();
   setAuthMode(!signUpMode);
+};
+
+// Start in sign-in mode and keep the signup area hidden until requested.
+confirmPasswordGroup.style.display = 'none';
+
+// Keyboard accessibility.
+authToggle.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    setAuthMode(!signUpMode);
+  }
 });
 
 authForm.addEventListener('submit', async (event) => {
@@ -172,20 +180,15 @@ authForm.addEventListener('submit', async (event) => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         const message = (error.message || '').toLowerCase();
-        if (message.includes('email not confirmed')) {
-          throw new Error('Your email is not confirmed yet. Check your inbox, confirm your account, then sign in.');
-        }
+        if (message.includes('email not confirmed')) throw new Error('Your email is not confirmed yet. Check your inbox, confirm your account, then sign in.');
         throw error;
       }
       if (data.user) renderApp(data.user);
     }
   } catch (error) {
     const message = error.message || 'Authentication failed.';
-    if (message.toLowerCase().includes('user already registered')) {
-      showMessage('This email already has an account. Switch to Sign in.', true);
-    } else {
-      showMessage(message, true);
-    }
+    if (message.toLowerCase().includes('user already registered')) showMessage('This email already has an account. Switch to Sign in.', true);
+    else showMessage(message, true);
   } finally {
     authSubmit.disabled = false;
   }
@@ -239,11 +242,7 @@ async function ask(text) {
   send.disabled = true;
   const out = addMessage('assistant', 'Thinking...');
   try {
-    const r = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history })
-    });
+    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: history }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || 'Request failed');
     out.textContent = data.reply;
