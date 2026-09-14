@@ -8,12 +8,28 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="app-shell">
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="welcome-icon">V</div>
+      <h1>Veylola AI</h1>
+      <p id="authSubtitle">Sign in to continue</p>
+      <form id="authForm">
+        <input id="authEmail" type="email" placeholder="Email address" required autocomplete="email" />
+        <input id="authPassword" type="password" placeholder="Password" required autocomplete="current-password" minlength="6" />
+        <button id="authSubmit" type="submit">Sign in</button>
+      </form>
+      <button id="forgotPassword" class="text-button">Forgot password?</button>
+      <button id="authToggle" class="text-button">Create an account</button>
+      <p id="authMessage" class="auth-message"></p>
+    </div>
+  </div>
+
+  <main id="appShell" class="app-shell hidden">
     <aside class="sidebar">
       <div class="brand"><div class="brand-mark">V</div><div><strong>Veylola AI</strong><span>Intelligent assistant</span></div></div>
       <button id="newChat" class="new-chat">+ New chat</button>
       <div class="side-info"><span>Veylola</span><p>Ask questions, brainstorm ideas, write, learn and solve problems.</p></div>
-      <div class="side-bottom">Built for the Veylola AI project</div>
+      <div class="side-bottom"><span id="userEmail"></span><button id="signOut" class="text-button">Sign out</button></div>
     </aside>
 
     <section class="chat-panel">
@@ -28,6 +44,8 @@
       <p class="disclaimer">Veylola AI can make mistakes. Check important information.</p>
     </section>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body>
 </html>
