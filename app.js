@@ -12,7 +12,12 @@ const appShell = document.getElementById('appShell');
 const authForm = document.getElementById('authForm');
 const authEmail = document.getElementById('authEmail');
 const authPassword = document.getElementById('authPassword');
+const authConfirmPassword = document.getElementById('authConfirmPassword');
+const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
 const togglePassword = document.getElementById('togglePassword');
+const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+const passwordStrengthText = document.getElementById('passwordStrengthText');
 const authSubmit = document.getElementById('authSubmit');
 const authToggle = document.getElementById('authToggle');
 const forgotPassword = document.getElementById('forgotPassword');
@@ -52,14 +57,38 @@ supabase.auth.onAuthStateChange((_event, session) => {
   else renderAuth();
 });
 
-// Password visibility toggle.
-togglePassword.addEventListener('click', () => {
-  const visible = authPassword.type === 'text';
-  authPassword.type = visible ? 'password' : 'text';
-  togglePassword.textContent = visible ? '👁' : '🙈';
-  togglePassword.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
-  togglePassword.title = visible ? 'Show password' : 'Hide password';
-});
+function setupVisibilityToggle(input, button) {
+  if (!input || !button) return;
+  button.addEventListener('click', () => {
+    const visible = input.type === 'text';
+    input.type = visible ? 'password' : 'text';
+    button.textContent = visible ? '👁' : '🙈';
+    button.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+    button.title = visible ? 'Show password' : 'Hide password';
+  });
+}
+
+setupVisibilityToggle(authPassword, togglePassword);
+setupVisibilityToggle(authConfirmPassword, toggleConfirmPassword);
+
+function updatePasswordStrength() {
+  if (!passwordStrengthBar || !passwordStrengthText) return;
+  const password = authPassword.value;
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  passwordStrengthBar.style.width = `${score * 20}%`;
+  passwordStrengthText.textContent = score === 0 ? 'Use 8+ characters with uppercase, lowercase, number and symbol.' :
+    score < 3 ? 'Weak password — add more character types.' :
+    score < 5 ? 'Good password — add more variety.' : 'Strong password ✓';
+  passwordStrengthText.className = `password-strength-text strength-${score}`;
+}
+
+authPassword.addEventListener('input', updatePasswordStrength);
 
 try {
   const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
@@ -78,20 +107,45 @@ function setAuthMode(createAccount) {
     ? 'Already have an account? <span>Sign in →</span>'
     : 'Create your Veylola account <span>→</span>';
   forgotPassword.style.display = createAccount ? 'none' : 'block';
+  confirmPasswordGroup.classList.toggle('hidden-field', !createAccount);
+  authConfirmPassword.required = createAccount;
+  authPassword.minLength = createAccount ? 8 : 6;
   authPassword.autocomplete = createAccount ? 'new-password' : 'current-password';
+  if (!createAccount) authConfirmPassword.value = '';
+  updatePasswordStrength();
   showMessage('');
+  if (createAccount) setTimeout(() => authPassword.focus(), 50);
 }
 
-authToggle.addEventListener('click', () => setAuthMode(!signUpMode));
+authToggle.addEventListener('click', (event) => {
+  event.preventDefault();
+  setAuthMode(!signUpMode);
+});
 
 authForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const email = authEmail.value.trim();
   const password = authPassword.value;
+  const confirmPassword = authConfirmPassword.value;
 
   if (!email || !password) {
     showMessage('Enter your email and password.', true);
     return;
+  }
+
+  if (signUpMode) {
+    if (password.length < 8) {
+      showMessage('Password must be at least 8 characters.', true);
+      return;
+    }
+    if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+      showMessage('Use uppercase, lowercase and at least one number in your password.', true);
+      return;
+    }
+    if (password !== confirmPassword) {
+      showMessage('Passwords do not match. Please check both password fields.', true);
+      return;
+    }
   }
 
   authSubmit.disabled = true;
